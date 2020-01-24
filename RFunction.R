@@ -1,6 +1,7 @@
 library('move')
+library('foreach')
 
-rFunction = function(username, password, study, timestamp_start=NULL, timestamp_end=NULL, animals) {
+rFunction = function(username, password, study, animals, timestamp_start=NULL, timestamp_end=NULL, data=NULL) {
   credentials <- movebankLogin(username, password)
   arguments <- list()
   arguments[["study"]] = study
@@ -25,10 +26,21 @@ rFunction = function(username, password, study, timestamp_start=NULL, timestamp_
 
   if(length(animals) != 0) {
     print(paste0(length(animals), " animals: ", animals))
-    arguments["animalName"] = animals
+    all <- foreach(animal = animals) %do% {
+      arguments["animalName"] = animal
+        print(animal)
+      do.call(getMovebankData, arguments)
+    }
+    result = moveStack(all)
   } else {
     print("no animals set, using full study")
+
+    result <- do.call(getMovebankData, arguments)
   }
 
-  do.call(getMovebankData, arguments)
+  if (exists("data") && !is.null(data)) {
+    print("Merging input and result together")
+    result <- moveStack(result, data)
+  }
+  result
 }
