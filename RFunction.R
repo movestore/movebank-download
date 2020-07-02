@@ -1,7 +1,7 @@
 library('move')
 library('foreach')
 
-rFunction <- function(username, password, study, animals, timestamp_start=NULL, timestamp_end=NULL, data=NULL) {
+rFunction = function(username, password, study, animals, timestamp_start=NULL, timestamp_end=NULL, data=NULL) {
   credentials <- movebankLogin(username, password)
   arguments <- list()
   arguments[["study"]] = study
