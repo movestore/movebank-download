@@ -6,7 +6,7 @@ rFunction = function(username, password, study, animals, timestamp_start=NULL, t
   arguments <- list()
   arguments[["study"]] = study
   arguments[["login"]] = credentials
-  arguments[["removeDuplicatedTimestamps"]] = FALSE
+  arguments[["removeDuplicatedTimestamps"]] = TRUE
   arguments[["includeExtraSensors"]] = FALSE
   arguments[["deploymentAsIndividuals"]] = FALSE
 
