@@ -38,7 +38,7 @@ rFunction  <- function(username, password, study, animals, timestamp_start=NULL,
   }
   
   # Fallback to make sure it is always a moveStack object and not a move object.
-  if (is.(result,'Move')) {
+  if (is(result,'Move')) {
     result <- moveStack(result)
   }
 
