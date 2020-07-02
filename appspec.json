@@ -1,4 +1,13 @@
 {
-  "settings":
-  []
+  "settings":[],
+  "dependencies": {
+   "R": [
+     {
+       "name": "move"
+     },
+         {
+       "name": "foreach"
+     }
+   ]
+ }
 }
