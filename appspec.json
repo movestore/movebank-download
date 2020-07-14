@@ -7,6 +7,12 @@
      },
          {
        "name": "foreach"
+     },
+         {
+       "name": "dplyr"
+     },
+         {
+       "name": "data.table"
      }
    ]
  }
