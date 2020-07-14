@@ -3,7 +3,7 @@ library('foreach')
 library('dplyr')
 library('data.table')
 
-rFunction = function(username, password, study, animals, duplicates_handling="first", timestamp_start=NULL, timestamp_end=NULL, data=NULL) {
+rFunction = function(username, password, study, animals, duplicates_handling="first", timestamp_start=NULL, timestamp_end=NULL, data=NULL, ...) {
   credentials <- movebankLogin(username, password)
   arguments <- list()
 
