@@ -9,7 +9,8 @@ rFunction = function(username, password, study, animals, duplicates_handling="fi
 
   if (duplicates_handling=="first")
   {
-    arguments <- list()
+    logger.info("you have (possibly by default) selected to combine your duplicated values to retain the first value of each. Note that this is the fastest option, but might loose some information.")
+    
     arguments[["study"]] = study
     arguments[["login"]] = credentials
     arguments[["removeDuplicatedTimestamps"]] = TRUE
@@ -30,29 +31,40 @@ rFunction = function(username, password, study, animals, duplicates_handling="fi
       logger.info("timestamp_end not set.")
     }
 
-    if(length(animals) != 0) {
-      logger.info(paste0(length(animals), " animals: ", animals))
-      all <- foreach(animal = animals) %do% {
-        arguments["animalName"] = animal
-        logger.info(animal)
-        do.call(getMovebankData, arguments)
-      }
-      result <- moveStack(all)
-    } else {
+    if (length(animals) == 0) 
+    {
       logger.info("no animals set, using full study")
-      result <- do.call(getMovebankData, arguments)
+      animals <- unique(do.call(getMovebankAnimals, list(study,credentials))$local_identifier)
     }
+    
+    logger.info(paste(length(animals), "animals:", paste(animals,collapse=", ")))
+    
+    all <- list()
+    all <- foreach(animal = animals) %do% {
+      arguments["animalName"] = animal
+      logger.info(animal)
+      
+      d <- tryCatch(do.call(getMovebankData, arguments), error = function(e){
+        logger.info(e)
+        return(NA)}) 
+    }
+    
+    names(all) <- animals
+    all <- all[unlist(lapply(all, is.na)==FALSE)] #take out NA animals
+    result <- moveStack(all)
+
   }
 
   if (duplicates_handling=="combi")
   {
     logger.info("you have selected to combine your duplicated values to retain the max amount of information in your data. Note that this might take long, under usual conditions about 3-5 times longer.")
+    
     arguments[["study"]] = study
     arguments[["login"]] = credentials
     arguments[["includeOutliers"]] = FALSE
     arguments[["underscoreToDots"]] = TRUE
 
-    if (exists("timestamp_start")&& !is.null(timestamp_start)) {
+    if (exists("timestamp_start") && !is.null(timestamp_start)) {
       logger.info(paste0("timestamp_start is set and will be used: ", timestamp_start))
       arguments["timestamp_start"] = timestamp_start
     }else {
@@ -85,42 +97,52 @@ rFunction = function(username, password, study, animals, duplicates_handling="fi
     {
       arguments["animalName"] = animal
       logger.info(animal)
-      locs <- do.call(getMovebankLocationData, arguments)
-      dupls <- getDuplicatedTimestamps(locs)
 
-      if (length(dupls)==0)
+      locs <- tryCatch(do.call(getMovebankLocationData, arguments), error = function(e){
+        logger.info(e)
+        return(NA)}) 
+      
+      if (is.na(locs))
       {
-        logger.info("no dupliated values. direct download")
-        alli <- do.call(getMovebankData, arguments)
+        alli_move <- NA
       } else
       {
-        logger.info(paste("Data of this ID contain",length(dupls),"duplicated timestamps. They will be combined for maximum information."))
-        replix <- as.numeric(unlist(lapply(dupls,function(x) x[1]) ))
-        remoix <-as.numeric(unlist(lapply(dupls,function(x) x[-1]) ))
-
-        repls <- foreach(dupl = dupls) %do% {
-          nNA <- apply(locs[dupl,],1,function(x) length(which(is.na(x))))
-          o <- order(nNA)
-          datai <- data.table(t(locs[dupl[o],]))
-          c(coalesce(!!!datai))
+        dupls <- getDuplicatedTimestamps(locs)
+        
+        if (length(dupls)==0)
+        {
+          logger.info("no dupliated values. direct download")
+          alli <- do.call(getMovebankData, arguments)
+          alli_move <- alli
+        } else
+        {
+          logger.info(paste("Data of this ID contain",length(dupls),"duplicated timestamps. They will be combined for maximum information."))
+          replix <- as.numeric(unlist(lapply(dupls,function(x) x[1]) ))
+          remoix <-as.numeric(unlist(lapply(dupls,function(x) x[-1]) ))
+          
+          repls <- foreach(dupl = dupls) %do% {
+            nNA <- apply(locs[dupl,],1,function(x) length(which(is.na(x))))
+            o <- order(nNA)
+            datai <- data.table(t(locs[dupl[o],]))
+            c(coalesce(!!!datai))
+          }
+          repls_df <- do.call("rbind", lapply(repls,function(x) as.data.frame(t(x))))
+          names(repls_df) <- names(locs)
+          locs_classes <- lapply(locs, class)
+          timeix <- which(names(repls_df)=="timestamp")
+          repls_df$timestamp <- as.POSIXct(repls_df$timestamp,tz="GMT")
+          for (i in seq(along=locs_classes)[-timeix]) class(repls_df[,i]) <- locs_classes[[i]]
+          
+          alli <- locs
+          alli[replix,] <- repls_df
+          alli <- alli[-remoix,]
+          alli_move <- move(alli)
         }
-        repls_df <- do.call("rbind", lapply(repls,function(x) as.data.frame(t(x))))
-        names(repls_df) <- names(locs)
-        locs_classes <- lapply(locs, class)
-        timeix <- which(names(repls_df)=="timestamp")
-        repls_df$timestamp <- as.POSIXct(repls_df$timestamp,tz="GMT")
-        for (i in seq(along=locs_classes)[-timeix]) class(repls_df[,i]) <- locs_classes[[i]]
-
-        alli <- locs
-        alli[replix,] <- repls_df
-        alli <- alli[-remoix,]
-
-        alli_move <- move(alli)
       }
-
       all <- c(all,list(alli_move))
     }
     names(all) <- animals
+    all <- all[unlist(lapply(all, is.na)==FALSE)] #take out NA animals
     result <- moveStack(all)
   }
 
