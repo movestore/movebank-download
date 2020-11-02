@@ -53,6 +53,19 @@ rFunction = function(username, password, study, animals, duplicates_handling="fi
     all <- all[unlist(lapply(all, is.na)==FALSE)] #take out NA animals
     result <- moveStack(all)
 
+    time_now <- Sys.time()
+    animal_f <- namesIndiv(result)
+    last_time <- foreach(animal = animal_f) %do% {
+      all_animal <- result[namesIndiv(result)==animal,]
+      max(timestamps(all_animal))
+    }
+    if (any(last_time>time_now)) 
+    {
+      ix <- which(last_time>time_now)
+      logger.info(paste("Warning! Data of the animal(s)",paste(animal_f[ix],collapse=", "),"contain timestamps in the future. They are retained here, but can be filtered out with other Apps, e.g. `Remove Outliers`"))
+    }
+    
+    result
   }
 
   if (duplicates_handling=="combi")
@@ -145,8 +158,8 @@ rFunction = function(username, password, study, animals, duplicates_handling="fi
     all <- all[unlist(lapply(all, is.na)==FALSE)] #take out NA animals
     result <- moveStack(all)
   }
-
-  # Fallback to make sure it is always a moveStack object and not a move object.
+  
+   # Fallback to make sure it is always a moveStack object and not a move object.
   if (is(result,'Move')) {
     result <- moveStack(result)
   }
@@ -155,5 +168,18 @@ rFunction = function(username, password, study, animals, duplicates_handling="fi
     logger.info("Merging input and result together")
     result <- moveStack(result, data)
   }
+
+  time_now <- Sys.time()
+  animal_f <- namesIndiv(result)
+  last_time <- foreach(animal = animal_f) %do% {
+    all_animal <- result[namesIndiv(result)==animal,]
+    max(timestamps(all_animal))
+  }
+  if (any(last_time>time_now)) 
+  {
+    ix <- which(last_time>time_now)
+    logger.info(paste("Warning! Data of the animal(s)",paste(animal_f[ix],collapse=", "),"contain timestamps in the future. They are retained here, but can be filtered out with other Apps, e.g. `Remove Outliers`"))
+  }
+  
   result
 }
