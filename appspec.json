@@ -16,6 +16,9 @@
       }
     ]
   },
+  "license": {
+    "key": "MIT"
+  },
   "language": "eng",
   "keywords": [
     "movebank",
