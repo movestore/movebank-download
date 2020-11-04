@@ -1,19 +1,19 @@
 {
-  "settings":[],
+  "settings": [],
   "dependencies": {
-   "R": [
-     {
-       "name": "move"
-     },
-         {
-       "name": "foreach"
-     },
-         {
-       "name": "dplyr"
-     },
-         {
-       "name": "data.table"
-     }
-   ]
- }
+    "R": [
+      {
+        "name": "move"
+      },
+      {
+        "name": "foreach"
+      },
+      {
+        "name": "dplyr"
+      },
+      {
+        "name": "data.table"
+      }
+    ]
+  }
 }
