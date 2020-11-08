@@ -1,19 +1,55 @@
 {
-  "settings":[],
+  "settings": [],
   "dependencies": {
-   "R": [
-     {
-       "name": "move"
-     },
-         {
-       "name": "foreach"
-     },
-         {
-       "name": "dplyr"
-     },
-         {
-       "name": "data.table"
-     }
-   ]
- }
+    "R": [
+      {
+        "name": "move"
+      },
+      {
+        "name": "foreach"
+      },
+      {
+        "name": "dplyr"
+      },
+      {
+        "name": "data.table"
+      }
+    ]
+  },
+  "license": {
+    "key": "MIT"
+  },
+  "language": "eng",
+  "keywords": [
+    "movebank",
+    "download",
+    "datasource"
+  ],
+  "people": [
+    {
+      "firstName": "Julian",
+      "lastName": "Hirt",
+      "email": "julian@couchbits.com",
+      "roles": [
+        "author",
+        "creator",
+        "maintainer"
+      ],
+      "affiliation": "couchbits GmbH"
+    },
+    {
+      "firstName": "Andrea",
+      "lastName": "Kölzsch",
+      "email": "akoelzsch@ab.mpg.de",
+      "roles": [
+        "contributor",
+        "reviewer"
+      ],
+      "orcid": "0000-0003-0193-1563",
+      "affiliation": "Max-Planck-Institute of Animal Behavior"
+    }
+  ],
+  "documentation": {
+    "url": "https://github.com/movestore/my-app/README.md"
+  }
 }
