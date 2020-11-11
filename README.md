@@ -19,7 +19,7 @@ In the next frame (Options) start and end timestamps can (but need not) be selec
 
 In the final frame and Overview of your data selection are provided with the Movebank login username, the Study ID and name, the number of selected Animals and (if clicking Details) their names, the selected start/end timestamps and the dupliate handling method.
 
-!> Note that Movebank Apps can be repeatedly added to Workflows and data are appended to each other. This way, it is possible to jointly analyse data from different user accounts and/or studies.
+:warning: Note that Movebank Apps can be repeatedly added to Workflows and data are appended to each other. This way, it is possible to jointly analyse data from different user accounts and/or studies.
 
 ### Input data
 none or 
