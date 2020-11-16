@@ -37,4 +37,5 @@ none
 ### Null or error handling:
 **Data:** If one or more Animals without data (in the selected time range) are selected then they are omitted from the return data set with a warning only. However, if all selected Animals have no data to download then NULL is returned, leading to an error.
 
+:warning: If there are timestamps in the dataset that are in the future, a warning is given. The locations with this obviously wrong timestamp are retained, but can be filtered e.g. with the Remove Ourliers App.
 
