@@ -3,7 +3,7 @@ library('foreach')
 library('dplyr')
 library('data.table')
 
-rFunction = function(username, password, study, animals, duplicates_handling="first", timestamp_start=NULL, timestamp_end=NULL, data=NULL, ...) {
+rFunction = function(username, password, study, animals=NULL, duplicates_handling="first", timestamp_start=NULL, timestamp_end=NULL, data=NULL, ...) {
   credentials <- movebankLogin(username, password)
   arguments <- list()
 
@@ -20,21 +20,21 @@ rFunction = function(username, password, study, animals, duplicates_handling="fi
     if (exists("timestamp_start")&& !is.null(timestamp_start)) {
       logger.info(paste0("timestamp_start is set and will be used: ", timestamp_start))
       arguments["timestamp_start"] = timestamp_start
-    }else {
+    } else {
       logger.info("timestamp_start not set.")
     }
 
     if (exists("timestamp_end") && !is.null(timestamp_end)) {
       logger.info(paste0("timestamp_end is set and will be used: ", timestamp_end))
       arguments["timestamp_end"] = timestamp_end
-    }else {
+    } else {
       logger.info("timestamp_end not set.")
     }
 
     if (length(animals) == 0) 
     {
       logger.info("no animals set, using full study")
-      animals <- unique(do.call(getMovebankAnimals, list(study,credentials))$local_identifier)
+      animals <- as.character(unique(do.call(getMovebankAnimals, list(study,credentials))$local_identifier))
     }
     
     logger.info(paste(length(animals), "animals:", paste(animals,collapse=", ")))
@@ -66,21 +66,21 @@ rFunction = function(username, password, study, animals, duplicates_handling="fi
     if (exists("timestamp_start") && !is.null(timestamp_start)) {
       logger.info(paste0("timestamp_start is set and will be used: ", timestamp_start))
       arguments["timestamp_start"] = timestamp_start
-    }else {
+    } else {
       logger.info("timestamp_start not set.")
     }
 
     if (exists("timestamp_end") && !is.null(timestamp_end)) {
       logger.info(paste0("timestamp_end is set and will be used: ", timestamp_end))
       arguments["timestamp_end"] = timestamp_end
-    }else {
+    } else {
       logger.info("timestamp_end not set.")
     }
 
     if (length(animals)==0)
     {
       logger.info("no animals set, using full study")
-      animals <- unique(do.call(getMovebankAnimals, list(study,credentials))$local_identifier)
+      animals <- as.character(unique(do.call(getMovebankAnimals, list(study,credentials))$local_identifier))
     }
 
     SensorInfo <- getMovebankSensors(login=credentials)

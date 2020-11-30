@@ -25,13 +25,15 @@ args <- list()
 #args[["timestamp_start"]] = "20130101000000000"
 #args[["timestamp_end"]] ="20131215000000000"
 
-args[["username"]] = "andreakoelzsch"
-args[["password"]] =
-args[["study"]] = 529676719 # needs to be study ID!!!
-args[["animals"]] = c("00_KOL_F", "01_KOL_F", "A32_KOL_F")
-args[["duplicates_handling"]] = "first" #"first" or "combi"
-args[["timestamp_start"]] = NULL
-args[["timestamp_end"]] = NULL
+args = fromJSON(txt="{\"study\":1300703741,\"animals\":[],\"username\":\"TeamWikelski\",\"password\":\"e8kF*sdB\",\"duplicates_handling\":\"first\"}")
+
+#args[["username"]] = "andreakoelzsch"
+#args[["password"]] = "Kimba%Wauwi34"
+#args[["study"]] = 1126572166 # needs to be study ID!!!
+#args[["animals"]] = NULL
+#args[["duplicates_handling"]] = "first" #"first" or "combi"
+#args[["timestamp_start"]] = NULL
+#args[["timestamp_end"]] = NULL
 
 
 #################################################################
