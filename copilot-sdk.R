@@ -26,12 +26,12 @@ args <- list()
 #args[["timestamp_end"]] ="20131215000000000"
 
 args[["username"]] = "andreakoelzsch"
-args[["password"]] = 
-args[["study"]] = 		565124314 # needs to be study ID!!!
-args[["animals"]] = c("2B", "2C", "2F")
+args[["password"]] =
+args[["study"]] = 529676719 # needs to be study ID!!!
+args[["animals"]] = c("00_KOL_F", "01_KOL_F", "A32_KOL_F")
 args[["duplicates_handling"]] = "first" #"first" or "combi"
-args[["timestamp_start"]] = "20190101000000000"
-args[["timestamp_end"]] = "20190401000000000"
+args[["timestamp_start"]] = NULL
+args[["timestamp_end"]] = NULL
 
 
 #################################################################
