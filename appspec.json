@@ -33,8 +33,7 @@
       "email": "julian@couchbits.com",
       "roles": [
         "author",
-        "creator",
-        "maintainer"
+        "creator"
       ],
       "affiliation": "couchbits GmbH"
     },
@@ -44,6 +43,7 @@
       "lastName": "Kölzsch",
       "email": "akoelzsch@ab.mpg.de",
       "roles": [
+		"author",
         "contributor",
         "reviewer"
       ],
