@@ -2,8 +2,9 @@ library('move')
 library('foreach')
 library('dplyr')
 library('data.table')
+library('lubridate')
 
-rFunction = function(username, password, study, animals=NULL, duplicates_handling="first", timestamp_start=NULL, timestamp_end=NULL, data=NULL, ...) {
+rFunction = function(username, password, study, animals=NULL, duplicates_handling="first", timestamp_start=NULL, timestamp_end=NULL, thin=FALSE, thin_numb = 1, thin_unit ='hour', minarg=FALSE, data=NULL, ...) {
   credentials <- movebankLogin(username, password)
   arguments <- list()
 
@@ -31,6 +32,12 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
       logger.info("timestamp_end not set.")
     }
 
+    if (thin==FALSE) logger.info("You have selected to download your dataset in full resolution, without thinning.")
+    if (thin==TRUE) logger.info(paste("You have selected to thin your dataset to one position per",thin_numb,thin_unit,"."))
+    
+    if (minarg==FALSE) logger.info("You have seleted to download all available arguments of the selected dataset.")
+    if (minarg==TRUE) logger.info("You have selected to download only the minimum number of arguments: Animal ID, Longitute, Latitude, Timestamp, Species, Sensor, Outlier_visibility")
+    
     if (length(animals) == 0) 
     {
       logger.info("no animals set, using full study")
@@ -47,6 +54,17 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
       d <- tryCatch(do.call(getMovebankData, arguments), error = function(e){
         logger.info(e)
         return(NA)}) 
+      if (thin==TRUE & is.na(d)==FALSE) d <- d[!duplicated(round_date(timestamps(d), paste0(thin_numb," ",thin_unit))),]
+      if (minarg==TRUE & is.na(d)==FALSE) 
+      {
+        minargdata0 <- as.data.frame(d)
+        names(minargdata0) <- make.names(names(minargdata0),allow_=FALSE)
+        minargdata <- minargdata0[,c("timestamp","location.long","location.lat","sensor.type","taxon.canonical.name","visible")]
+        minargdata <- data.frame("individual.local.identifier"=namesIndiv(d),minargdata)
+        minargdata$timestamp <- as.POSIXct(timestamps(d))
+        d@data <- minargdata
+      }
+      d
     }
     
     names(all) <- animals
@@ -77,6 +95,9 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
       logger.info("timestamp_end not set.")
     }
 
+    if (thin==FALSE) logger.info("You have selected to download your dataset in full resolution, without thinning.")
+    if (thin==TRUE) logger.info(paste("You have selected to thin your dataset to one position per",thin_numb,thin_unit,"."))
+    
     if (length(animals)==0)
     {
       logger.info("no animals set, using full study")
@@ -136,6 +157,17 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
           alli[replix,] <- repls_df
           alli <- alli[-remoix,]
           alli_move <- move(alli)
+        }
+        if (thin==TRUE & is.na(alli_move)==FALSE) alli_move <- alli_move[!duplicated(round_date(timestamps(alli_move), paste0(thin_numb," ",thin_unit))),]
+        if (minarg==TRUE & is.na(alli_move)==FALSE)
+        {
+          minargdatac0 <- as.data.frame(alli_move)
+          names(minargdatac0) <- make.names(names(minargdatac0),allow_=FALSE)
+          minargdatac <- minargdatac0[,c("timestamp","location.long","location.lat","sensor.type","visible")]
+         minargdatac <- data.frame("individual.local.identifier"=namesIndiv(alli_move),minargdatac)
+         minargdatac$timestamp <- as.POSIXct(timestamps(alli_move))
+         minargdatac <- data.frame(minargdatac[,1:5],"taxon.canonical.name"=idData(alli_move)$individual.taxon.canonical.name,"visible"=minargdatac[,6])
+         alli_move@data <- minargdatac
         }
       }
       all <- c(all,list(alli_move))

@@ -13,7 +13,10 @@
       },
       {
         "name": "data.table"
-      }
+      },
+	  {
+		"name": "lubridate"
+	  }
     ]
   },
   "license": {
@@ -23,7 +26,8 @@
   "keywords": [
     "movebank",
     "download",
-    "datasource"
+    "datasource",
+	"thinning"
   ],
   "people": [
     {
