@@ -150,7 +150,7 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
           names(repls_df) <- names(locs)
           locs_classes <- lapply(locs, class)
           timeix <- which(names(repls_df)=="timestamp")
-          repls_df$timestamp <- as.POSIXct(repls_df$timestamp,tz="GMT")
+          repls_df$timestamp <- as.POSIXct(repls_df$timestamp,tz="UTC")
           for (i in seq(along=locs_classes)[-timeix]) class(repls_df[,i]) <- locs_classes[[i]]
           
           alli <- locs
