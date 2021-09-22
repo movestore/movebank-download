@@ -69,7 +69,7 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
     
     names(all) <- animals
     all <- all[unlist(lapply(all, is.na)==FALSE)] #take out NA animals
-    result <- moveStack(all)
+    result <- moveStack(all,forceTz="UTC")
   }
 
   if (duplicates_handling=="combi")
@@ -174,12 +174,12 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
     }
     names(all) <- animals
     all <- all[unlist(lapply(all, is.na)==FALSE)] #take out NA animals
-    result <- moveStack(all)
+    result <- moveStack(all,forceTz="UTC")
   } #end of different duplicate removal methods
   
   # Fallback to make sure it is always a moveStack object and not a move object.
   if (is(result,'Move')) {
-    result <- moveStack(result)
+    result <- moveStack(result,forceTz="UTC")
   }
 
   # give warning if there are timestamps in the future
@@ -197,7 +197,7 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
   
   if (exists("data") && !is.null(data)) {
     logger.info("Merging input and result together")
-    result <- moveStack(result, data)
+    result <- moveStack(result, data, forceTz="UTC")
   }
 
   result
