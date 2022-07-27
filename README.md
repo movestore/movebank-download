@@ -4,7 +4,7 @@ MoveApps
 Github repository: *github.com/movestore/movebank-download*
 
 ## Description
-Download Movement tracks which are stored in a Movebank study. It is possible to select Animals, a time range and duplicate filtering methods. 
+Download Movement tracks which are stored in a Movebank study. It is possible to select Animals, a time range, duplicate filtering methods and more. 
 
 ## Documentation
 This App allows the direct download of Movement data that are stored in the Movebank Data Base. Those data can be the start of workflows that then filter, visualise and/or analyse them. In an interactive interface the data have to be accessed and selected.
