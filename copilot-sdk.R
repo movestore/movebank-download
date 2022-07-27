@@ -18,7 +18,7 @@ args <- list()
 
 # Add your arguments of your r function here
 args[["username"]] = "andreakoelzsch" #"TeamWikelski"
-args[["password"]] = "Elska%Pferdchen42" #"e8kF*sdB"
+args[["password"]] = ""
 args[["study"]] = 	171287018 # needs to be study ID!!!
 args[["animals"]] =  c("71526a","71527a")
 args[["duplicates_handling"]] = "first" #"first" or "combi"
