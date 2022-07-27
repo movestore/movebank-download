@@ -4,7 +4,7 @@ library('dplyr')
 library('data.table')
 library('lubridate')
 
-rFunction = function(username, password, study, animals=NULL, duplicates_handling="first", timestamp_start=NULL, timestamp_end=NULL, thin=FALSE, thin_numb = 1, thin_unit ='hour', minarg=FALSE, data=NULL, ...) {
+rFunction = function(username, password, study, animals=NULL, duplicates_handling="first", timestamp_start=NULL, timestamp_end=NULL, thin=FALSE, thin_numb = 1, thin_unit ='hour', minarg=FALSE, incl_outliers=FALSE, select_sensors=NULL, data=NULL, ...) {
   credentials <- movebankLogin(username, password)
   arguments <- list()
 
@@ -17,7 +17,8 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
     arguments[["removeDuplicatedTimestamps"]] = TRUE
     arguments[["includeExtraSensors"]] = FALSE
     arguments[["deploymentAsIndividuals"]] = FALSE
-
+    arguments[["includeOutliers"]] = incl_outliers
+   
     if (exists("timestamp_start")&& !is.null(timestamp_start)) {
       logger.info(paste0("timestamp_start is set and will be used: ", timestamp_start))
       arguments["timestamp_start"] = timestamp_start
@@ -46,6 +47,24 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
     
     logger.info(paste(length(animals), "animals:", paste(animals,collapse=", ")))
     
+    SensorInfo <- getMovebankSensors(login=credentials)
+    SensorStudy <- getMovebankSensors(study,login=credentials)
+    allsensors <- intersect(SensorInfo$id[as.logical(SensorInfo$is_location_sensor)==TRUE],unique(SensorStudy$sensor_type_id))
+    allsensors_names <- SensorInfo$name[which(SensorInfo$id %in% allsensors)]
+    
+    #it seems that the attribute "sensor_type_id" is not possible in getMovebankData... shall I switch to getMovebank("event",...)?
+    # then need to change argument names and add: arguments[["entity_type"]] <- "event"
+    if (is.null(select_sensors))
+    {
+      logger.info(paste("You have selected to download locations of all available sensor types:",paste(allsensors_names,collapse=", ")))
+      arguments[["sensor_type_id"]] <- allsensors
+    } else
+    {
+      select_sensors_names <- SensorInfo$name[which(SensorInfo$id %in% select_sensors)]
+      logger.info(paste("You have selected to download only locations of these selected sensor types:",paste(select_sensors_names,collapse=", ")))
+      arguments[["sensor_type_id"]] <- select_sensors
+    } 
+    
     all <- list()
     all <- foreach(animal = animals) %do% {
       arguments["animalName"] = animal
@@ -53,13 +72,17 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
       
       d <- tryCatch(do.call(getMovebankData, arguments), error = function(e){
         logger.info(e)
-        return(NA)}) 
-      if (thin==TRUE & is.na(d)==FALSE) d <- d[!duplicated(round_date(timestamps(d), paste0(thin_numb," ",thin_unit))),]
-      if (minarg==TRUE & is.na(d)==FALSE) 
+        return(NULL)}) 
+      if (thin==TRUE & is.null(d)==FALSE) d <- d[!duplicated(round_date(timestamps(d), paste0(thin_numb," ",thin_unit))),]
+      if (minarg==TRUE & is.null(d)==FALSE) 
       {
         minargdata0 <- as.data.frame(d)
         names(minargdata0) <- make.names(names(minargdata0),allow_=FALSE)
-        minargdata <- minargdata0[,c("timestamp","location.long","location.lat","sensor.type","taxon.canonical.name","visible")]
+        if (any(names(minargdata0)=="individual.taxon.canonical.name")) taxon.name <- "individual.taxon.canonical.name" else if (any(names(minargdata0)=="taxon.canonical.name")) taxon.name <- "taxon.canonical.name" else {
+          taxon.name <- NULL
+          logger.info("No taxon information available. This attribute will not be added to the data.")
+        }
+        minargdata <- minargdata0[,c("timestamp","location.long","location.lat","sensor.type",taxon.name,"visible")]
         minargdata <- data.frame("individual.local.identifier"=namesIndiv(d),minargdata)
         minargdata$timestamp <- as.POSIXct(timestamps(d))
         d@data <- minargdata
@@ -68,8 +91,8 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
     }
     
     names(all) <- animals
-    all <- all[unlist(lapply(all, is.na)==FALSE)] #take out NA animals
-    result <- moveStack(all,forceTz="UTC")
+    all <- all[unlist(lapply(all, is.null)==FALSE)] #take out NULL data animals
+    if (length(all)>0) result <- moveStack(all,forceTz="UTC") else result <- NULL
   }
 
   if (duplicates_handling=="combi")
@@ -78,7 +101,7 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
     
     arguments[["study"]] = study
     arguments[["login"]] = credentials
-    arguments[["includeOutliers"]] = FALSE
+    arguments[["includeOutliers"]] = incl_outliers
     arguments[["underscoreToDots"]] = TRUE
 
     if (exists("timestamp_start") && !is.null(timestamp_start)) {
@@ -104,13 +127,24 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
       animals <- as.character(unique(do.call(getMovebankAnimals, list(study,credentials))$local_identifier))
     }
 
-    SensorInfo <- getMovebankSensors(login=credentials)
-    names(SensorInfo)
-    SensorStudy <- getMovebankSensors(study,login=credentials)
-    sensors <- intersect(SensorInfo$id[as.logical(SensorInfo$is_location_sensor)==TRUE],unique(SensorStudy$sensor_type_id))
-    arguments[["sensorID"]] = sensors
-
+    
     logger.info(paste(length(animals), "animals:", paste(animals,collapse=", ")))
+    
+    SensorInfo <- getMovebankSensors(login=credentials)
+    SensorStudy <- getMovebankSensors(study,login=credentials)
+    allsensors <- intersect(SensorInfo$id[as.logical(SensorInfo$is_location_sensor)==TRUE],unique(SensorStudy$sensor_type_id))
+    allsensors_names <- SensorInfo$name[which(SensorInfo$id %in% allsensors)]
+    
+    if (is.null(select_sensors))
+    {
+      logger.info(paste("You have selected to download locations of all available sensor types:",paste(allsensors_names,collapse=", ")))
+      arguments[["sensorID"]] <- allsensors
+    } else
+    {
+      select_sensors_names <- SensorInfo$name[which(SensorInfo$id %in% select_sensors)]
+      logger.info(paste("You have selected to download only locations of these selected sensor types:",paste(select_sensors_names,collapse=", ")))
+      arguments[["sensorID"]] <- as.character(select_sensors)
+    } 
 
     all <- list()
     for (animal in animals)
@@ -120,11 +154,11 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
 
       locs <- tryCatch(do.call(getMovebankLocationData, arguments), error = function(e){
         logger.info(e)
-        return(NA)}) 
+        return(NULL)}) 
       
-      if (is.na(locs))
+      if (is.null(locs))
       {
-        alli_move <- NA
+        alli_move <- NULL
       } else
       {
         dupls <- getDuplicatedTimestamps(locs)
@@ -158,23 +192,24 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
           alli <- alli[-remoix,]
           alli_move <- move(alli)
         }
-        if (thin==TRUE & is.na(alli_move)==FALSE) alli_move <- alli_move[!duplicated(round_date(timestamps(alli_move), paste0(thin_numb," ",thin_unit))),]
-        if (minarg==TRUE & is.na(alli_move)==FALSE)
+        if (thin==TRUE & is.null(alli_move)==FALSE) alli_move <- alli_move[!duplicated(round_date(timestamps(alli_move), paste0(thin_numb," ",thin_unit))),]
+        if (minarg==TRUE & is.null(alli_move)==FALSE)
         {
           minargdatac0 <- as.data.frame(alli_move)
           names(minargdatac0) <- make.names(names(minargdatac0),allow_=FALSE)
           minargdatac <- minargdatac0[,c("timestamp","location.long","location.lat","sensor.type","visible")]
          minargdatac <- data.frame("individual.local.identifier"=namesIndiv(alli_move),minargdatac)
          minargdatac$timestamp <- as.POSIXct(timestamps(alli_move))
-         minargdatac <- data.frame(minargdatac[,1:5],"taxon.canonical.name"=idData(alli_move)$individual.taxon.canonical.name,"visible"=minargdatac[,6])
+         if (any(names(idData(alli_move))=="individual.taxon.canonical.name")) minargdatac <- data.frame(minargdatac[,1:5],"taxon.canonical.name"=idData(alli_move)$individual.taxon.canonical.name,"visible"=minargdatac[,6])
+         if (any(names(idData(alli_move))=="taxon.canonical.name")) minargdatac <- data.frame(minargdatac[,1:5],"taxon.canonical.name"=idData(alli_move)$taxon.canonical.name,"visible"=minargdatac[,6])
          alli_move@data <- minargdatac
         }
       }
       all <- c(all,list(alli_move))
     }
     names(all) <- animals
-    all <- all[unlist(lapply(all, is.na)==FALSE)] #take out NA animals
-    result <- moveStack(all,forceTz="UTC")
+    all <- all[unlist(lapply(all, is.null)==FALSE)] #take out NULL animals
+    if (length(all)>0) result <- moveStack(all,forceTz="UTC") else result <- NULL
   } #end of different duplicate removal methods
   
   # Fallback to make sure it is always a moveStack object and not a move object.
@@ -183,16 +218,19 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
   }
 
   # give warning if there are timestamps in the future
-  time_now <- Sys.time()
-  animal_f <- namesIndiv(result)
-  last_time <- foreach(animal = animal_f) %do% {
-    all_animal <- result[namesIndiv(result)==animal,]
-    max(timestamps(all_animal))
-  }
-  if (any(last_time>time_now)) 
+  if (length(result)>0)
   {
-    ix <- which(last_time>time_now)
-    logger.info(paste("Warning! Data of the animal(s)",paste(animal_f[ix],collapse=", "),"contain timestamps in the future. They are retained here, but can be filtered out with other Apps, e.g. `Remove Outliers`"))
+    time_now <- Sys.time()
+    animal_f <- namesIndiv(result)
+    last_time <- foreach(animal = animal_f) %do% {
+      all_animal <- result[namesIndiv(result)==animal,]
+      max(timestamps(all_animal))
+    }
+    if (any(last_time>time_now)) 
+    {
+      ix <- which(last_time>time_now)
+      logger.info(paste("Warning! Data of the animal(s)",paste(animal_f[ix],collapse=", "),"contain timestamps in the future. They are retained here, but can be filtered out with other Apps, e.g. `Remove Outliers`"))
+    }
   }
   
   if (exists("data") && !is.null(data)) {

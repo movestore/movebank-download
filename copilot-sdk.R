@@ -17,17 +17,20 @@ args <- list()
 #    args[["password"]] = "any-password"
 
 # Add your arguments of your r function here
-args[["username"]] = "TeamWikelski"
-args[["password"]] = 
-args[["study"]] = 	212096177 # needs to be study ID!!!
-args[["animals"]] = c("Ida + / DER AW838 (eobs 3040)","Erich + / DER AU642 (eobs 2762)","Lorenz + / DER AU597 (eobs 3018)")
+args[["username"]] = "andreakoelzsch" #"TeamWikelski"
+args[["password"]] = "Elska%Pferdchen42" #"e8kF*sdB"
+args[["study"]] = 	171287018 # needs to be study ID!!!
+args[["animals"]] =  c("71526a","71527a")
 args[["duplicates_handling"]] = "first" #"first" or "combi"
 args[["timestamp_start"]] = NULL
-args[["timestamp_end"]] = NULL
-args[["thin"]]=TRUE
+args[["timestamp_end"]] = NULL #"20080101120000000"
+args[["thin"]]= FALSE
 args[["thin_numb"]] = 1
-args[["thin_unit"]] = "day"
-args[["minarg"]] = TRUE
+args[["thin_unit"]] = "hour"
+args[["minarg"]] = FALSE
+args[["select_sensors"]] <- NULL #653 #NULL #does not work for numeric sensor id... ??
+args[["incl_outliers"]] = FALSE #seems to work
+
 
 #args = fromJSON(txt="{\"study\":1300703741,\"animals\":[],\"username\":\"TeamWikelski\",\"password\":\"        \",\"duplicates_handling\":\"first\"}")
 
@@ -70,3 +73,6 @@ if(!is.null(outputFileName) && outputFileName != "" && !is.null(result)) {
 } else {
   cat("Skip store result: no output File or result is missing", "\n")
 }
+
+
+
