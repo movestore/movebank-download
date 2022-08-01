@@ -18,18 +18,18 @@ args <- list()
 
 # Add your arguments of your r function here
 args[["username"]] = "andreakoelzsch" #"TeamWikelski"
-args[["password"]] = ""
-args[["study"]] = 	171287018 # needs to be study ID!!!
-args[["animals"]] =  c("71526a","71527a")
-args[["duplicates_handling"]] = "first" #"first" or "combi"
+args[["password"]] = 
+args[["study"]] = 	9589196 # needs to be study ID!!!
+args[["animals"]] =  c("HansChristian_2731")
+args[["duplicates_handling"]] = "combi" #"first" or "combi"
 args[["timestamp_start"]] = NULL
 args[["timestamp_end"]] = NULL #"20080101120000000"
-args[["thin"]]= FALSE
+args[["thin"]]= TRUE
 args[["thin_numb"]] = 1
-args[["thin_unit"]] = "hour"
-args[["minarg"]] = FALSE
-args[["select_sensors"]] <- NULL #653 #NULL #does not work for numeric sensor id... ??
-args[["incl_outliers"]] = FALSE #seems to work
+args[["thin_unit"]] = "day"
+args[["minarg"]] = TRUE
+args[["select_sensors"]] <- 653 #NULL #does not work for numeric sensor id... ??
+args[["incl_outliers"]] = FALSE #if set to TRUE,an error about duplicated timestamps appears...
 
 
 #args = fromJSON(txt="{\"study\":1300703741,\"animals\":[],\"username\":\"TeamWikelski\",\"password\":\"        \",\"duplicates_handling\":\"first\"}")
