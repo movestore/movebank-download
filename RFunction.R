@@ -40,18 +40,26 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
     
   SensorInfo <- getMovebankSensors(login=credentials)
   SensorStudy <- getMovebankSensors(study,login=credentials)
+  SensorAnimals <- getMovebankAnimals(study,login=credentials)
+  
   allsensors <- intersect(SensorInfo$id[as.logical(SensorInfo$is_location_sensor)==TRUE],unique(SensorStudy$sensor_type_id))
   allsensors_names <- SensorInfo$name[which(SensorInfo$id %in% allsensors)]
-    
+  
+  sensorIDs <- as.list(unique(SensorAnimals$local_identifier))
+  names(sensorIDs) <- unique(SensorAnimals$local_identifier)
+  sensors_byID <- lapply(sensorIDs, function(x) SensorAnimals$sensor_type_id[SensorAnimals$local_identifier==x])
+  names(sensors_byID) <- names(sensorIDs)
+  
   if (is.null(select_sensors))
   {
     logger.info(paste("You have selected to download locations of all available sensor types:",paste(allsensors_names,collapse=", ")))
-    arguments[["sensorID"]] <- allsensors
+    #arguments[["sensorID"]] <- allsensors
   } else
   {
     select_sensors_names <- SensorInfo$name[which(SensorInfo$id %in% select_sensors)]
+    sensors_byID <- lapply(sensors_byID, function(x) x[which(x %in% select_sensors)])
     logger.info(paste("You have selected to download only locations of these selected sensor types:",paste(select_sensors_names,collapse=", ")))
-    arguments[["sensorID"]] <- select_sensors
+    #arguments[["sensorID"]] <- select_sensors
   } 
   
   if (duplicates_handling=="first")
@@ -67,16 +75,26 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
     arguments["animalName"] = animal
     logger.info(animal)
     
-    locs <- tryCatch(do.call(getMovebankLocationData, arguments), error = function(e){
+    sensors_animal <- sensors_byID[[which(names(sensors_byID)==animal)]]
+    
+    if (length(sensors_animal)==0)
+    {
+      logger.info("There are no data of the required sensor type for this animal.")
+      locs <- NULL
+    } else 
+    {
+      arguments[["sensorID"]] <- sensors_animal
+      locs <- tryCatch(do.call(getMovebankLocationData, arguments), error = function(e){
         logger.info(e)
-        return(NULL)}) 
+        return(NULL)}) #can return NULL if there are no data by this animal
+    }
     
     if (is.null(locs))
     {
       alli_move <- NULL
     } else
     {
-      dupls <- getDuplicatedTimestamps(locs) #this is a list
+      dupls <- getDuplicatedTimestamps(locs,onlyVisible=FALSE) #this is a list, onlyVisible includes outliers here
       
       if (length(dupls)==0)
       {
