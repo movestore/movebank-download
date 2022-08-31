@@ -17,27 +17,22 @@ args <- list()
 #    args[["password"]] = "any-password"
 
 # Add your arguments of your r function here
-args[["username"]] = "TeamWikelski"
-args[["password"]] = 
-args[["study"]] = 	212096177 # needs to be study ID!!!
-args[["animals"]] = c("Ida + / DER AW838 (eobs 3040)","Erich + / DER AU642 (eobs 2762)","Lorenz + / DER AU597 (eobs 3018)")
+args[["username"]] = "andreakoelzsch" #"TeamWikelski"
+args[["password"]] = ""
+args[["study"]] = 		7431347 # needs to be study ID!!!
+args[["animals"]] =  NULL #c("115290A","115291A") #c("HansChristian_2731")
 args[["duplicates_handling"]] = "first" #"first" or "combi"
 args[["timestamp_start"]] = NULL
-args[["timestamp_end"]] = NULL
-args[["thin"]]=TRUE
+args[["timestamp_end"]] = NULL #"20080101120000000"
+args[["thin"]]= FALSE
 args[["thin_numb"]] = 1
 args[["thin_unit"]] = "day"
-args[["minarg"]] = TRUE
+args[["minarg"]] = FALSE
+args[["select_sensors"]] <- NULL #c(653, 82798) #NULL #viable options (single or multiple or NULL): 653 (GPS), 397 (Bird Ring), 673 (Radio Transmitter), 82798 (Argos Doppler Shift), 2365682 (Natural Mark), 3886361 (Solar Geolocator), 1239574236 (Acoustic Telemetry)
+args[["incl_outliers"]] = TRUE #if set to TRUE,an error about duplicated timestamps appears...
+
 
 #args = fromJSON(txt="{\"study\":1300703741,\"animals\":[],\"username\":\"TeamWikelski\",\"password\":\"        \",\"duplicates_handling\":\"first\"}")
-
-#args[["username"]] = "andreakoelzsch"
-#args[["password"]] = 
-#args[["study"]] = 1126572166 # needs to be study ID!!!
-#args[["animals"]] = NULL
-#args[["duplicates_handling"]] = "first" #"first" or "combi"
-#args[["timestamp_start"]] = NULL
-#args[["timestamp_end"]] = NULL
 
 
 #################################################################
@@ -70,3 +65,6 @@ if(!is.null(outputFileName) && outputFileName != "" && !is.null(result)) {
 } else {
   cat("Skip store result: no output File or result is missing", "\n")
 }
+
+
+

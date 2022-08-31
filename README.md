@@ -4,7 +4,7 @@ MoveApps
 Github repository: *github.com/movestore/movebank-download*
 
 ## Description
-Download Movement tracks which are stored in a Movebank study. It is possible to select Animals, a time range, duplicate filtering methods and more. 
+Download Movement tracks which are stored in a Movebank study. It is possible to select Animals, a time range, data thinning, sensor types, outlier inclusion, duplicate filtering methods and more. 
 
 ## Documentation
 This App allows the direct download of Movement data that are stored in the Movebank Data Base. Those data can be the start of workflows that then filter, visualise and/or analyse them. In an interactive interface the data have to be accessed and selected.
@@ -15,7 +15,7 @@ In the next frame the Studies to which you have access under the selected Moveba
 
 Once a study is selected, in the next frame the Animals for which data shall be downloaded have to be chosen. By default the top bar `All XX Animals` is selected. When selecting (or unselecting) single Animals below, this selection disappears. Any number of Animals can be selected, note that for large data sets the download might take a long time. For help with the selection, the given nickname, species, ring ID, number of locations (events), number of deployments and timestamps of the first and last location are provided for each animal.
 
-In the next frame (Options) start and end timestamps can (but need not) be selected to download only part of the data set(s). Start and end dates (timestamps) can be selected or left open independently. Another option is how possible duplicate timestamps for same locations/animals shall be handled, as the moveStack output of the App does not allow for duplicated timestamps. The two options presently available are (1) to retain the first occurance of each duplicate timestamp and (2) to merge all data from a timestamp and keep the first non-emtpy entry for each column, thus retaining a maximum of information.
+In the next frame (Options) start and end timestamps can (but need not) be selected to download only part of the data set(s). Start and end dates (timestamps) can be selected or left open independently. Further, data resolution can be selected for possible thinning, arguments of the data set can be minimised for size reduction, sensor types can be selected and the download of marked outliers can be enabled. Finally, one can opt how possible duplicate timestamps for same locations/animals shall be handled, as the moveStack output of the App does not allow for duplicated timestamps. The two options presently available are (1) to retain the first occurance of each duplicate timestamp and (2) to merge all data from a timestamp and keep the first non-emtpy entry for each column, thus retaining a maximum of information.
 
 In the final frame and Overview of your data selection are provided with the Movebank login username, the Study ID and name, the number of selected Animals and (if clicking Details) their names, the selected start/end timestamps and the dupliate handling method.
 
