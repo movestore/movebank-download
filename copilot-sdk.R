@@ -17,8 +17,12 @@ args <- list()
 #    args[["password"]] = "any-password"
 
 # Add your arguments of your r function here
-args[["username"]] = "andreakoelzsch" #"TeamWikelski"
-args[["password"]] = ""
+# If you have to work with sensitive data (like passwords) use library `dotenv`
+library(dotenv)
+load_dot_env()
+
+args[["username"]] = Sys.getenv("MOVEBANK_USERNAME")
+args[["password"]] = Sys.getenv("MOVEBANK_PASSWORD")
 args[["study"]] = 		7431347 # needs to be study ID!!!
 args[["animals"]] =  NULL #c("115290A","115291A") #c("HansChristian_2731")
 args[["duplicates_handling"]] = "first" #"first" or "combi"
