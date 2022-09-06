@@ -20,20 +20,20 @@ args <- list()
 
 # If you have to work with sensitive data (like passwords) use library `dotenv`
 library(dotenv)
-load_dot_env()
+load_dot_env(file="akoelzsch.env")
 
 args[["username"]] = Sys.getenv("MOVEBANK_USERNAME")
 args[["password"]] = Sys.getenv("MOVEBANK_PASSWORD")
 args[["study"]] = 		7431347 # needs to be study ID!!!
-args[["animals"]] =  NULL #c("115290A","115291A") #c("HansChristian_2731")
-args[["duplicates_handling"]] = "first" #"first" or "combi"
+args[["animals"]] =  c("115290A","115291A") #c("HansChristian_2731")
+args[["duplicates_handling"]] = "combi" #"first" or "combi"
 args[["timestamp_start"]] = NULL
 args[["timestamp_end"]] = NULL #"20080101120000000"
-args[["thin"]]= FALSE
+args[["thin"]]= TRUE
 args[["thin_numb"]] = 1
 args[["thin_unit"]] = "day"
 args[["minarg"]] = FALSE
-args[["select_sensors"]] <- NULL #c(653, 82798) #NULL #viable options (single or multiple or NULL): 653 (GPS), 397 (Bird Ring), 673 (Radio Transmitter), 82798 (Argos Doppler Shift), 2365682 (Natural Mark), 3886361 (Solar Geolocator), 1239574236 (Acoustic Telemetry)
+args[["select_sensors"]] <- c(653) #NULL #viable options (single or multiple or NULL): 653 (GPS), 397 (Bird Ring), 673 (Radio Transmitter), 82798 (Argos Doppler Shift), 2365682 (Natural Mark), 3886361 (Solar Geolocator), 1239574236 (Acoustic Telemetry)
 args[["incl_outliers"]] = TRUE #if set to TRUE,an error about duplicated timestamps appears...
 
 
