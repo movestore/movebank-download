@@ -63,16 +63,16 @@ rFunction = function(username, password, config_version=NULL, study, animals=NUL
   
   if (is.null(select_sensors))
   {
-    logger.info("The selected study does not contain any location sensor data. No data will be downloaded (NULL output) and the workflow cannot be used.")
+    logger.info("The selected study does not contain any location sensor data. No data will be downloaded (NULL output) by this App.")
     result <- NULL
   } else if (length(select_sensors)==0)
   {
-    logger.info("You have (by mistake) deselected all available location sensors. No data will be downloaded (NULL output) and the workflow cannot be used.")
+    logger.info("You have deselected all available location sensors. No data will be downloaded (NULL output) by this App.")
     result <- NULL
   } else
   {
     select_sensors_names <- SensorInfo$name[which(SensorInfo$id %in% select_sensors)]
-    if (is.null(config_version) | config_version==0) logger.info(paste0("You are using the Movebank App with old version Settings. They do not allow selection of sensor types. Therefore, data of all locaiton sensor types will be downloaded: ", paste(select_sensors_names,collapse=", ") ,". If you want to use the sensor selection option, please completely reconfigure the App.")) else logger.info(paste("You have selected to download locations of these selected sensor types:",paste(select_sensors_names,collapse=", ")))
+    if (is.null(config_version) | config_version==0) logger.info(paste0("You are using the Movebank App with old version Settings. They do not allow selection of sensor types. Therefore, data of all location sensor types will be downloaded: ", paste(select_sensors_names,collapse=", ") ,". If you want to use the sensor selection option, please completely reconfigure the App.")) else logger.info(paste("You have selected to download locations of these selected sensor types:",paste(select_sensors_names,collapse=", ")))
     
     sensors_byID <- lapply(sensors_byID, function(x) x[which(x %in% select_sensors)])
     
