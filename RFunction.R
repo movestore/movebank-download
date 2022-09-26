@@ -4,7 +4,7 @@ library('dplyr')
 library('data.table')
 library('lubridate')
 
-rFunction = function(username, password, study, animals=NULL, duplicates_handling="first", timestamp_start=NULL, timestamp_end=NULL, thin=FALSE, thin_numb = 1, thin_unit ='hour', minarg=FALSE, incl_outliers=FALSE, select_sensors=NULL, data=NULL, ...) {
+rFunction = function(username, password, config_version=NULL, study, animals=NULL, duplicates_handling="first", timestamp_start=NULL, timestamp_end=NULL, thin=FALSE, thin_numb = 1, thin_unit ='hour', minarg=FALSE, incl_outliers=FALSE, select_sensors=NULL, data=NULL, ...) {
   credentials <- movebankLogin(username, password)
   arguments <- list()
 
@@ -58,19 +58,23 @@ rFunction = function(username, password, study, animals=NULL, duplicates_handlin
   sensors_byID <- lapply(sensorIDs, function(x) SensorAnimals$sensor_type_id[SensorAnimals$local_identifier==x])
   names(sensors_byID) <- names(sensorIDs)
   
+  ## for old Apps without sensor selection, here set "select_sensors" parameter to all possible location data sensors; no else needed because select_sensors given
+  if (is.null(config_version) | config_version==0) select_sensors <- SensorInfo$id[which(SensorInfo$is_location_sensor=="true")]
+  
   if (is.null(select_sensors))
   {
-    logger.info("You have (by mistake) deselected all available location sensors. No data will be downloaded and the workflow cannot be used.")
+    logger.info("The selected study does not contain any location sensor data. No data will be downloaded (NULL output) and the workflow cannot be used.")
     result <- NULL
   } else if (length(select_sensors)==0)
   {
-    logger.info("The selected study does not contain any location sensor data. No data will be downloaded and the workflow cannot be used.")
+    logger.info("You have (by mistake) deselected all available location sensors. No data will be downloaded (NULL output) and the workflow cannot be used.")
     result <- NULL
   } else
   {
     select_sensors_names <- SensorInfo$name[which(SensorInfo$id %in% select_sensors)]
+    if (is.null(config_version) | config_version==0) logger.info(paste0("You are using the Movebank App with old version Settings. They do not allow selection of sensor types. Therefore, data of all locaiton sensor types will be downloaded: ", paste(select_sensors_names,collapse=", ") ,". If you want to use the sensor selection option, please completely reconfigure the App.")) else logger.info(paste("You have selected to download locations of these selected sensor types:",paste(select_sensors_names,collapse=", ")))
+    
     sensors_byID <- lapply(sensors_byID, function(x) x[which(x %in% select_sensors)])
-    logger.info(paste("You have selected to download locations of these selected sensor types:",paste(select_sensors_names,collapse=", ")))
     
     all <- foreach(animal = animals) %do% {
       arguments["animalName"] = animal

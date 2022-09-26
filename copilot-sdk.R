@@ -24,6 +24,7 @@ load_dot_env(file="akoelzsch.env")
 
 args[["username"]] = Sys.getenv("MOVEBANK_USERNAME")
 args[["password"]] = Sys.getenv("MOVEBANK_PASSWORD")
+args[["config_version"]] = 0
 args[["study"]] = 		7431347 # needs to be study ID!!!
 args[["animals"]] =  c("115290A","115291A") #c("HansChristian_2731")
 args[["duplicates_handling"]] = "combi" #"first" or "combi"
