@@ -52,10 +52,11 @@ rFunction = function(username, password, config_version=NULL, study, animals=NUL
   SensorInfo <- getMovebankSensors(login=credentials)
   SensorStudy <- getMovebankSensors(study,login=credentials)
   SensorAnimals <- getMovebankAnimals(study,login=credentials)
+  names(SensorAnimals) <- make.names(names(SensorAnimals),allow_=FALSE)
   
-  sensorIDs <- as.list(unique(SensorAnimals$local_identifier))
-  names(sensorIDs) <- unique(SensorAnimals$local_identifier)
-  sensors_byID <- lapply(sensorIDs, function(x) SensorAnimals$sensor_type_id[SensorAnimals$local_identifier==x])
+  sensorIDs <- as.list(unique(SensorAnimals$local.identifier))
+  names(sensorIDs) <- unique(SensorAnimals$local.identifier)
+  sensors_byID <- lapply(sensorIDs, function(x) SensorAnimals$sensor.type.id[SensorAnimals$local.identifier==x])
   names(sensors_byID) <- names(sensorIDs)
   
   ## for old Apps without sensor selection, here set "select_sensors" parameter to all possible location data sensors; no else needed because select_sensors given
@@ -94,11 +95,20 @@ rFunction = function(username, password, config_version=NULL, study, animals=NUL
           return(NULL)}) #can return NULL if there are no data by this animal
       }
       
-      if (is.null(locs))
+      if (is.null(locs) | length(locs[,1])==0) #either not possible to load or empty table
       {
+        logger.info("There are no data available for this animal.")
         alli_move <- NULL
       } else
       {
+        ###
+        # here comes a fix for missing idData of the getMovebankLocationData function (needs to be fixed by the move package, afterwards this part can be taken out again)
+        
+        iddt <- SensorAnimals[SensorAnimals$local.identifier==animal,]
+        ix <- which(names(iddt) %in% names(locs)==FALSE)
+        locs <- merge(locs,iddt[,ix],by.x="individual.local.identifier",by.y="local.identifier")
+        ###
+        
         dupls <- getDuplicatedTimestamps(locs,onlyVisible=FALSE) #this is a list, onlyVisible includes outliers here
         
         if (length(dupls)==0)
@@ -158,6 +168,7 @@ rFunction = function(username, password, config_version=NULL, study, animals=NUL
           if (any(names(idData(alli_move))=="taxon.canonical.name")) minargdatac <- data.frame(minargdatac[,1:5],"taxon.canonical.name"=idData(alli_move)$taxon.canonical.name,"visible"=minargdatac[,6])
           alli_move@data <- minargdatac
         }
+        #print(alli_move)
         alli_move
       }
     }
