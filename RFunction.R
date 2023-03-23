@@ -68,7 +68,7 @@ rFunction = function(username, password, config_version=NULL, study, animals=NUL
     result <- NULL
   } else if (length(select_sensors)==0)
   {
-    logger.info("You have deselected all available location sensors. No data will be downloaded (NULL output) by this App.")
+    logger.info("Either the selected study does not contain any location sensor data or you have deselected all available location sensors. No data will be downloaded (NULL output) by this App.")
     result <- NULL
   } else
   {
@@ -199,14 +199,19 @@ rFunction = function(username, password, config_version=NULL, study, animals=NUL
     }
   } 
   
-  
-  
-  
-  
-  if (exists("data") && !is.null(data)) {
-    logger.info("Merging input and result together")
-    result <- moveStack(result, data, forceTz="UTC")
-  }
+
+  if (exists("data") && !is.null(data))
+    {
+      if (is.null(result))
+      {
+        result <- data
+        logger.info("No data downloaded, but input data returned.")
+      } else
+      {
+        logger.info("Merging input and result together")
+        result <- moveStack(result, data, forceTz="UTC")
+      }
+    }
 
   return(result)
 }
