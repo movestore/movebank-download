@@ -51,6 +51,7 @@ rFunction = function(username, password, config_version=NULL, study, animals=NUL
   
   SensorInfo <- getMovebankSensors(login=credentials)
   SensorStudy <- getMovebankSensors(study,login=credentials)
+  u_study_sensors <- unique(SensorStudy$sensor_type_id)
   SensorAnimals <- getMovebankAnimals(study,login=credentials)
   names(SensorAnimals) <- make.names(names(SensorAnimals),allow_=FALSE)
   
@@ -59,8 +60,8 @@ rFunction = function(username, password, config_version=NULL, study, animals=NUL
   sensors_byID <- lapply(sensorIDs, function(x) SensorAnimals$sensor.type.id[SensorAnimals$local.identifier==x])
   names(sensors_byID) <- names(sensorIDs)
   
-  ## for old Apps without sensor selection, here set "select_sensors" parameter to all possible location data sensors; no else needed because select_sensors given
-  if (is.null(config_version) | config_version==0) select_sensors <- SensorInfo$id[which(SensorInfo$is_location_sensor=="true")]
+  ## for old Apps without sensor selection, here set "select_sensors" parameter to all possible location data sensors of the selected study; no else needed because select_sensors given
+  if (is.null(config_version) | config_version==0) select_sensors <- SensorInfo$id[which(SensorInfo$is_location_sensor=="true" & SensorInfo$id %in% u_study_sensors)]
   
   if (is.null(select_sensors))
   {
