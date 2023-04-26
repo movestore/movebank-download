@@ -105,8 +105,19 @@ rFunction = function(username, password, config_version=NULL, study, animals=NUL
         ###
         # here comes a fix for missing idData of the getMovebankLocationData function (needs to be fixed by the move package, afterwards this part can be taken out again)
         
+
+                       
+        
         iddt <- SensorAnimals[SensorAnimals$local.identifier==animal,]
         ix <- which(names(iddt) %in% names(locs)==FALSE)
+        
+        #this fix requires that the individual.local.identifier is not numeric, or gets adapted like this:
+        if (is.numeric(locs$individual.local.identifier))
+          {
+            locs$individual.local.identifier <- make.names(as.character(locs$individual.local.identifier),allow_=FALSE)    
+            iddt[,ix]$local.identifier <- make.names(as.character(as.numeric(iddt[,ix]$local.identifier))) 
+          }
+        
         locs <- merge(locs,iddt[,ix],by.x="individual.local.identifier",by.y="local.identifier")
         ###
         
